@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "870880916736",
+    "project_id": "f1-vision",
+    "storage_bucket": "f1-vision.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:870880916736:android:5e594e6cea9c0c947fefe5",
+        "android_client_info": {
+          "package_name": "com.example.f1_vision"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "870880916736-qkho6cegk3d18pvnjunfjdi60onc0nmh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFd-ZEeoX8Iq25oASCig9joGdziD8HMtw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "870880916736-qkho6cegk3d18pvnjunfjdi60onc0nmh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

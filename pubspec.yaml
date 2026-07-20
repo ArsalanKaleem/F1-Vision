@@ -1,0 +1,58 @@
+name: f1_vision
+description: "F1 Vision — a premium Formula 1 analytics dashboard built with Flutter."
+publish_to: "none"
+version: 0.4.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Routing
+  go_router: ^14.2.7
+
+  # Networking
+  dio: ^5.7.0
+
+  # Auth (optional at runtime — the app runs without Firebase configured)
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
+  # Pinned below 7.0.0: google_sign_in 7.x is a breaking API rewrite.
+  google_sign_in: ^6.2.1
+
+  # Local persistence (theme preference)
+  shared_preferences: ^2.3.2
+
+  # UI / theming
+  google_fonts: ^6.2.1
+  fl_chart: ^0.69.0
+  cached_network_image: ^3.4.1
+  flutter_animate: ^4.5.0
+  shimmer: ^3.0.0
+
+  # Utils
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
+
+# NOTE on the original spec's heavier dependencies
+# ------------------------------------------------
+# The brief also lists freezed / json_serializable / build_runner / isar /
+# syncfusion_flutter_charts. They are intentionally omitted from this first
+# runnable cut so the project compiles with a plain `flutter pub get` (no
+# codegen step). Upgrade path:
+#   * Replace the hand-written models in lib/models with freezed unions and run
+#     `dart run build_runner build`.
+#   * Swap the in-memory CacheStore (lib/core/network) for isar collections.
+#   * Syncfusion charts can drop in alongside fl_chart where a licence is held.
+
+flutter:
+  uses-material-design: true

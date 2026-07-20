@@ -1,0 +1,257 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_text_styles.dart';
+import '../../core/utils/responsive.dart';
+import '../../routes/nav_destinations.dart';
+
+/// The persistent chrome around every page. On desktop/tablet it renders a
+/// collapsible navigation rail; on mobile it switches to a bottom bar. The body
+/// is supplied by GoRouter's [StatefulShellRoute].
+class AppShell extends StatefulWidget {
+  const AppShell({super.key, required this.child});
+  final Widget child;
+
+  @override
+  State<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<AppShell> {
+  bool _railExtended = true;
+
+  int _indexFor(String location) {
+    final i = appDestinations.indexWhere(
+      (d) => d.path == '/'
+          ? location == '/'
+          : location.startsWith(d.path),
+    );
+    return i < 0 ? 0 : i;
+  }
+
+  void _go(int index) => context.go(appDestinations[index].path);
+
+  @override
+  Widget build(BuildContext context) {
+    final location = GoRouterState.of(context).uri.path;
+    final selected = _indexFor(location);
+
+    if (context.isMobile) {
+      return Scaffold(
+        body: SafeArea(child: widget.child),
+        bottomNavigationBar: _MobileNavBar(
+          selected: selected,
+          onTap: _go,
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: Row(
+        children: [
+          _DesktopRail(
+            selected: selected,
+            extended: _railExtended && context.isDesktop,
+            onTap: _go,
+            onToggle: () => setState(() => _railExtended = !_railExtended),
+          ),
+          const VerticalDivider(width: 1),
+          Expanded(child: SafeArea(child: widget.child)),
+        ],
+      ),
+    );
+  }
+}
+
+class _DesktopRail extends StatelessWidget {
+  const _DesktopRail({
+    required this.selected,
+    required this.extended,
+    required this.onTap,
+    required this.onToggle,
+  });
+
+  final int selected;
+  final bool extended;
+  final ValueChanged<int> onTap;
+  final VoidCallback onToggle;
+
+  // The rail shows the primary destinations; secondary ones live under it.
+  static const _primaryCount = 6;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      width: extended ? 240 : 76,
+      color: AppColors.surface,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _brand(extended),
+          const SizedBox(height: 8),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                for (var i = 0; i < appDestinations.length; i++) ...[
+                  if (i == _primaryCount)
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(12, 16, 12, 8),
+                      child: Divider(height: 1),
+                    ),
+                  _RailItem(
+                    destination: appDestinations[i],
+                    selected: selected == i,
+                    extended: extended,
+                    onTap: () => onTap(i),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: onToggle,
+            icon: Icon(
+              extended ? Icons.chevron_left_rounded : Icons.chevron_right_rounded,
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+
+  Widget _brand(bool extended) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 22, 18, 10),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              gradient: AppColors.accentGradient,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            child: const Text(
+              'F1',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          if (extended) ...[
+            const SizedBox(width: 12),
+            Text('VISION', style: AppTextStyles.titleLarge),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _RailItem extends StatelessWidget {
+  const _RailItem({
+    required this.destination,
+    required this.selected,
+    required this.extended,
+    required this.onTap,
+  });
+
+  final NavDestination destination;
+  final bool selected;
+  final bool extended;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Container(
+      margin: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: selected
+            ? AppColors.accent.withValues(alpha: 0.12)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: selected
+              ? AppColors.accent.withValues(alpha: 0.35)
+              : Colors.transparent,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            selected ? destination.selectedIcon : destination.icon,
+            size: 20,
+            color: selected ? AppColors.accentSoft : AppColors.textSecondary,
+          ),
+          if (extended) ...[
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                destination.label,
+                overflow: TextOverflow.ellipsis,
+                style: AppTextStyles.titleSmall.copyWith(
+                  color:
+                      selected ? AppColors.textPrimary : AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: extended
+            ? content
+            : Tooltip(message: destination.label, child: content),
+      ),
+    );
+  }
+}
+
+class _MobileNavBar extends StatelessWidget {
+  const _MobileNavBar({required this.selected, required this.onTap});
+  final int selected;
+  final ValueChanged<int> onTap;
+
+  // Mobile shows the five most-used destinations.
+  static const _mobileIndices = [0, 1, 4, 7, 9];
+
+  @override
+  Widget build(BuildContext context) {
+    final localSelected = _mobileIndices.contains(selected)
+        ? _mobileIndices.indexOf(selected)
+        : 0;
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border(top: BorderSide(color: AppColors.surfaceStroke)),
+      ),
+      child: NavigationBar(
+        backgroundColor: Colors.transparent,
+        selectedIndex: localSelected,
+        height: 64,
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        onDestinationSelected: (i) => onTap(_mobileIndices[i]),
+        destinations: [
+          for (final i in _mobileIndices)
+            NavigationDestination(
+              icon: Icon(appDestinations[i].icon),
+              selectedIcon: Icon(appDestinations[i].selectedIcon),
+              label: appDestinations[i].label,
+            ),
+        ],
+      ),
+    );
+  }
+}
