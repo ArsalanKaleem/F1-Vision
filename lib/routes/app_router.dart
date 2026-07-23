@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/about/about_screen.dart';
 import '../features/analytics/analytics_command_center.dart';
 import '../features/auth/login_screen.dart';
 import '../features/compare/comparison_studio_screen.dart';
@@ -146,6 +147,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/compare',
             pageBuilder: (c, s) => _fade(s, const ComparisonStudioScreen()),
+          ),
+          GoRoute(
+            path: '/about',
+            pageBuilder: (c, s) => _fade(s, const AboutScreen()),
           ),
           GoRoute(
             path: '/settings',

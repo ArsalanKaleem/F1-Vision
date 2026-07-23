@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -281,6 +282,16 @@ class _AboutCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text('VERSION 0.6.0', style: AppTextStyles.overline),
+          const SizedBox(height: 14),
+          OutlinedButton.icon(
+            onPressed: () => context.go('/about'),
+            icon: const Icon(Icons.info_outline_rounded, size: 16),
+            label: const Text('About the developer'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.textSecondary,
+              side: BorderSide(color: AppColors.surfaceStroke),
+            ),
+          ),
         ],
       ),
     );

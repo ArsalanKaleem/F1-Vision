@@ -78,6 +78,12 @@ const appDestinations = <NavDestination>[
     selectedIcon: Icons.compare_arrows_rounded,
   ),
   NavDestination(
+    path: '/about',
+    label: 'About',
+    icon: Icons.info_outline_rounded,
+    selectedIcon: Icons.info_rounded,
+  ),
+  NavDestination(
     path: '/settings',
     label: 'Settings',
     icon: Icons.settings_outlined,

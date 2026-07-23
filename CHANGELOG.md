@@ -6,6 +6,13 @@ Format: [Keep a Changelog](https://keepachangelog.com) · Versioning: [SemVer](h
 ## [0.6.0] — 2026-07-23
 
 ### Added
+- **About screen** — a developer-focused page with a themed hero (light/dark
+  background artwork, avatar, bio) and brand-tinted social buttons; a Support
+  section (Rate App, Report a Bug, Request a Feature, Privacy Policy, Terms &
+  Conditions); an Open Source section listing technologies, libraries with
+  their licences, and Flutter's full licence page; and a "Made with ❤️"
+  footer. All names, links and store URLs live in one file,
+  `core/constants/app_info.dart`.
 - **Driver Comparison Studio** — head-to-head analysis of any two drivers:
   profile overview, season head-to-head bars, performance radar, championship
   progress, and (when a race is selected) lap-time, position, sector, speed,

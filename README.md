@@ -51,7 +51,11 @@ cinematic dark (or light) design.
 - **Standings** — driver & constructor championships with a season selector.
 - **Home** — live-session hero, weather, and next-race overview.
 - **Settings** — Dark / Light / System theme (persisted), account management,
-  about.
+  offline-cache control.
+- **About** — developer profile with social links, support actions (rate,
+  report a bug, request a feature, privacy, terms) and an open-source
+  credits section. Personalise it by editing
+  `lib/core/constants/app_info.dart`.
 - **Authentication (optional)** — e-mail/password registration & sign-in plus
   **Sign in with Google**, guest mode, password reset. Powered by Firebase;
   without a Firebase config the app simply runs without auth.
