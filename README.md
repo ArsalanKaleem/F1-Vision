@@ -99,8 +99,8 @@ without losing information density.
 
 
 |                        Analytics Command Center                        |  |
-| :--------------------------------------------------------------------: | :-: |
-| <img src="docs/media/demo-analytics.gif" width="400" alt="Analytics" / |  |
+| :---------------------------------------------------------------------: | :-: |
+| <img src="docs/media/demo-analytics.gif" width="400" alt="Analytics" /> |  |
 |           Fourteen panels, nine chart types, season selector           |  |
 
 
