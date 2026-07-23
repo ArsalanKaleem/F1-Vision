@@ -98,10 +98,10 @@ without losing information density.
 <div align="center">
 
 
-|                        Analytics Command Center                        |  |
-| :---------------------------------------------------------------------: | :-: |
-| <img src="docs/media/demo-analytics.gif" width="400" alt="Analytics" /> |  |
-|           Fourteen panels, nine chart types, season selector           |  |
+|                        Analytics Command Center                        |                        Race Replay Studio                        |
+| :---------------------------------------------------------------------: | :---------------------------------------------------------------: |
+| <img src="docs/media/demo-analytics.gif" width="400" alt="Analytics" /> | <img src="docs/media/demo-replay.gif" width="400" alt="Replay" /> |
+|           Fourteen panels, nine chart types, season selector           |           Lap-by-lap playback with animated leaderboard           |
 
 
 |                           Telemetry Dashboard                           |                             Comparison Studio                             |
@@ -116,6 +116,8 @@ without losing information density.
 |             Drawer navigation, full density preserved             |                      Every screen, both themes                      |
 
 </div>
+
+> **
 
 ---
 
@@ -300,7 +302,8 @@ flutter build web --web-renderer canvaskit
 ```
 
 **Windows notes.** Windows is the only platform that compiles the Firebase C++
-SDK from source, which makes it the only one that can hit CMake issues.
+SDK from source, which makes it the only one that can hit CMake issues — see
+**[docs/WINDOWS_BUILD.md](docs/WINDOWS_BUILD.md)**.
 
 ---
 
@@ -332,6 +335,8 @@ Available in the **Replay Studio** on desktop and web:
   appends to a capped buffer rather than refetching the session.
 - **Pruning.** Cached rows older than seven days are dropped at startup;
   Settings shows the entry count with a manual purge.
+
+Full detail in **[docs/OFFLINE_CACHE.md](docs/OFFLINE_CACHE.md)**.
 
 ---
 
