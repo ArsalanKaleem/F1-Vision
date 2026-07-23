@@ -33,6 +33,7 @@ a full lap-by-lap race replay engine, and head-to-head driver comparison.
 <div align="center">
 
 <!-- ▸ Replace with a 10–20s screen recording of the Analytics Command Center. -->
+
 <img src="docs/media/hero.gif" width="860" alt="F1 Vision — Analytics Command Center" />
 
 <sub><i>Analytics Command Center — fourteen live panels, nine chart types, one screen.</i></sub>
@@ -90,100 +91,31 @@ without losing information density.
 <tr>
 <td width="50%" valign="top">
 
-### 🏁 Live & real-time
-- Live timing leaderboard with rows that **slide** between positions
-- Automatic switch to final classification once a session ends
-- Tyre compounds, DRS state, gaps and intervals
-- Weather, session status and next-race countdown
-- Adaptive polling — fast during a session, relaxed after
-
-</td>
-<td width="50%" valign="top">
-
-### 📊 Analytics
-- **14 panels** across one responsive masonry board
-- **9 chart types**: line, area, horizontal bar, pie, donut, radar, scatter, sparkline, progress ring
-- Championship progress, team trends, race pace, reliability
-- Poles, podiums, fastest laps, average finish, DNFs
-- Season selector back to the mid-1990s
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### 🎬 Race replay
-- Replay **any** Grand Prix lap by lap
-- Transport controls: play, pause, restart, step, **0.5×–5×**, jump-to-lap
-- Event timeline: safety cars, VSC, flags, weather, retirements
-- Tyre strategy with per-stint duration and pit position deltas
-- Synchronised auto-scrolling race feed
-
-</td>
-<td width="50%" valign="top">
-
-### ⚔️ Comparison
-- Any two drivers, season-wide or inside one race
-- Lap times, sectors, top & average speed
-- Position changes, tyre strategy, pit stops
-- Normalised six-axis performance radar
-- **Pace vs tyre age** degradation scatter
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### 🔧 Telemetry
-- Animated 270° speed and RPM gauges
-- Gear / DRS / throttle / brake status rail
-- Three synchronised traces on one crosshair
-- Viewport zoom and pan, engineer cursor read-out
-- Driver selector and replay pause/restart
-
-</td>
-<td width="50%" valign="top">
-
-### 🎨 Craft
-- **Light and dark** themes, persisted, with live OS following
-- Offline-first: previously-viewed screens work with no connection
-- Shimmer skeletons, empty and error states everywhere
-- Keyboard shortcuts and hover states on desktop
-- Semantic labels, 44px targets, reduce-motion support
-
-</td>
-</tr>
-</table>
-
 ---
 
 ## 📱 Screens
 
 <div align="center">
 
-| Analytics Command Center | Race Replay Studio |
-|:---:|:---:|
-| <img src="docs/media/demo-analytics.gif" width="400" alt="Analytics" /> | <img src="docs/media/demo-replay.gif" width="400" alt="Replay" /> |
-| Fourteen panels, nine chart types, season selector | Lap-by-lap playback with animated leaderboard |
 
-| Telemetry Dashboard | Comparison Studio |
-|:---:|:---:|
+|                        Analytics Command Center                        |  |
+| :--------------------------------------------------------------------: | :-: |
+| <img src="docs/media/demo-analytics.gif" width="400" alt="Analytics" / |  |
+|           Fourteen panels, nine chart types, season selector           |  |
+
+
+|                           Telemetry Dashboard                           |                             Comparison Studio                             |
+| :---------------------------------------------------------------------: | :-----------------------------------------------------------------------: |
 | <img src="docs/media/demo-telemetry.gif" width="400" alt="Telemetry" /> | <img src="docs/media/demo-comparison.gif" width="400" alt="Comparison" /> |
-| Live gauges and synchronised traces | Head-to-head across a season or a single race |
+|                   Live gauges and synchronised traces                   |               Head-to-head across a season or a single race               |
 
-| Mobile — adaptive layout | Light mode |
-|:---:|:---:|
+
+|                     Mobile — adaptive layout                     |                              Light mode                              |
+| :---------------------------------------------------------------: | :------------------------------------------------------------------: |
 | <img src="docs/media/demo-mobile.gif" width="260" alt="Mobile" /> | <img src="docs/media/demo-light.gif" width="260" alt="Light mode" /> |
-| Drawer navigation, full density preserved | Every screen, both themes |
+|             Drawer navigation, full density preserved             |                      Every screen, both themes                      |
 
 </div>
-
-> **📹 Recording your own captures**
-> Drop GIFs into `docs/media/` using the filenames above.
-> Desktop: any screen recorder → convert with
-> `ffmpeg -i in.mov -vf "fps=15,scale=860:-1:flags=lanczos" -loop 0 out.gif`
-> Mobile: `flutter screenshot` or `scrcpy --record`. Keep each clip under ~6 MB
-> so GitHub renders it inline.
 
 ---
 
@@ -211,13 +143,14 @@ across its boundary.
 
 ### Principles
 
-| Rule | Why |
-|---|---|
-| UI only watches providers | Screens stay testable and free of I/O |
-| Repositories return `Result<T>`, never throw | Errors become data; every screen renders a real error state |
-| Colours and type come from `AppColors` / `AppTextStyles` | This is what makes light mode a one-line switch |
-| Every screen handles loading / empty / error | No blank frames, ever |
-| Heavy aggregation happens once, in the repository | Immutable payloads flow down; playback never refetches |
+
+| Rule                                                    | Why                                                         |
+| ------------------------------------------------------- | ----------------------------------------------------------- |
+| UI only watches providers                               | Screens stay testable and free of I/O                       |
+| Repositories return`Result<T>`, never throw             | Errors become data; every screen renders a real error state |
+| Colours and type come from`AppColors` / `AppTextStyles` | This is what makes light mode a one-line switch             |
+| Every screen handles loading / empty / error            | No blank frames, ever                                       |
+| Heavy aggregation happens once, in the repository       | Immutable payloads flow down; playback never refetches      |
 
 ### Notable design decisions
 
@@ -243,26 +176,28 @@ The replay still works from timing data and the UI says why.
 
 ## 🛠 Tech stack
 
-| Layer | Choice | Notes |
-|---|---|---|
-| Framework | **Flutter 3.27+** | Uses `Color.withValues` |
-| State | **Riverpod 2** | Providers, families, `select`, `autoDispose` |
-| Routing | **GoRouter** | Shell route + auth redirects, deep-linkable |
-| Networking | **Dio** | Custom retry + TTL cache interceptors, honours `Retry-After` |
-| Charts | **fl_chart 0.69** | Line, bar, pie, radar, scatter (+ custom painters) |
-| Offline | **Isar** | Persistent L2 response cache |
-| Auth | **Firebase Auth** | Email/password + Google — entirely optional |
-| Motion | **flutter_animate**, **shimmer** | Entrances, micro-interactions, skeletons |
-| Type | **Sora** + **Inter** via google_fonts | Display and UI faces |
+
+| Layer      | Choice                                | Notes                                                       |
+| ---------- | ------------------------------------- | ----------------------------------------------------------- |
+| Framework  | **Flutter 3.27+**                     | Uses`Color.withValues`                                      |
+| State      | **Riverpod 2**                        | Providers, families,`select`, `autoDispose`                 |
+| Routing    | **GoRouter**                          | Shell route + auth redirects, deep-linkable                 |
+| Networking | **Dio**                               | Custom retry + TTL cache interceptors, honours`Retry-After` |
+| Charts     | **fl_chart 0.69**                     | Line, bar, pie, radar, scatter (+ custom painters)          |
+| Offline    | **Isar**                              | Persistent L2 response cache                                |
+| Auth       | **Firebase Auth**                     | Email/password + Google — entirely optional                |
+| Motion     | **flutter_animate**, **shimmer**      | Entrances, micro-interactions, skeletons                    |
+| Type       | **Sora** + **Inter** via google_fonts | Display and UI faces                                        |
 
 ---
 
 ## 🔌 Data sources
 
-| Source | Provides | Notes |
-|---|---|---|
-| [**OpenF1**](https://openf1.org) | Sessions, live positions, car telemetry, weather, race control, stints | Covers 2023 onward. Live in-session telemetry requires a paid account; otherwise the latest completed session streams as a replay. |
-| [**Jolpica**](https://github.com/jolpica/jolpica-f1) | Standings, results, qualifying, lap timings, pit stops | Ergast-compatible. Lap-by-lap timing back to 1996. `limit` caps at 100, so season and lap feeds paginate (handled and cached). |
+
+| Source                                               | Provides                                                               | Notes                                                                                                                              |
+| ---------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| [**OpenF1**](https://openf1.org)                     | Sessions, live positions, car telemetry, weather, race control, stints | Covers 2023 onward. Live in-session telemetry requires a paid account; otherwise the latest completed session streams as a replay. |
+| [**Jolpica**](https://github.com/jolpica/jolpica-f1) | Standings, results, qualifying, lap timings, pit stops                 | Ergast-compatible. Lap-by-lap timing back to 1996.`limit` caps at 100, so season and lap feeds paginate (handled and cached).      |
 
 No API keys are required for any of the data features.
 
@@ -345,15 +280,16 @@ are git-ignored on purpose: each contributor generates their own.
 
 ## 💻 Platform support
 
-| | Android | iOS | Web | Windows | macOS | Linux |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| UI, charts, routing | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Live & historical data | ✅ | ✅ | ⚠️ CORS | ✅ | ✅ | ✅ |
-| Offline cache (Isar) | ✅ | ✅ | ⚠️ session only | ✅ | ✅ | ✅ |
-| Email/password auth | ✅ | ✅ | ✅ | ⚠️ partial | ✅ | ⚠️ partial |
-| Google sign-in | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
-| App icon | ✅ | ✅ | ✅ | ✅ | ✅ | — |
-| Native splash | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+
+|                        | Android | iOS |        Web        |   Windows   | macOS |    Linux    |
+| ---------------------- | :-----: | :-: | :---------------: | :----------: | :---: | :----------: |
+| UI, charts, routing    |   ✅   | ✅ |        ✅        |      ✅      |  ✅  |      ✅      |
+| Live & historical data |   ✅   | ✅ |     ⚠️ CORS     |      ✅      |  ✅  |      ✅      |
+| Offline cache (Isar)   |   ✅   | ✅ | ⚠️ session only |      ✅      |  ✅  |      ✅      |
+| Email/password auth    |   ✅   | ✅ |        ✅        | ⚠️ partial |  ✅  | ⚠️ partial |
+| Google sign-in         |   ✅   | ✅ |        ✅        |      ❌      |  ✅  |      ❌      |
+| App icon               |   ✅   | ✅ |        ✅        |      ✅      |  ✅  |      —      |
+| Native splash          |   ✅   | ✅ |        ✅        |      ❌      |  ❌  |      ❌      |
 
 **Web notes.** `path_provider` has no web implementation, so the Isar cache
 falls back to in-memory (session-only). Build with the CanvasKit renderer — the
@@ -364,8 +300,7 @@ flutter build web --web-renderer canvaskit
 ```
 
 **Windows notes.** Windows is the only platform that compiles the Firebase C++
-SDK from source, which makes it the only one that can hit CMake issues — see
-**[docs/WINDOWS_BUILD.md](docs/WINDOWS_BUILD.md)**.
+SDK from source, which makes it the only one that can hit CMake issues.
 
 ---
 
@@ -373,13 +308,14 @@ SDK from source, which makes it the only one that can hit CMake issues — see
 
 Available in the **Replay Studio** on desktop and web:
 
-| Key | Action |
-|---|---|
-| <kbd>Space</kbd> / <kbd>K</kbd> | Play / pause |
-| <kbd>←</kbd> <kbd>→</kbd> | Previous / next lap |
-| <kbd>R</kbd> | Restart |
-| <kbd>Home</kbd> / <kbd>End</kbd> | Jump to start / chequered flag |
-| <kbd>1</kbd>–<kbd>4</kbd> | Replay speed 0.5× / 1× / 2× / 5× |
+
+| Key                              | Action                               |
+| -------------------------------- | ------------------------------------ |
+| <kbd>Space</kbd> / <kbd>K</kbd>  | Play / pause                         |
+| <kbd>←</kbd> <kbd>→</kbd>      | Previous / next lap                  |
+| <kbd>R</kbd>                     | Restart                              |
+| <kbd>Home</kbd> / <kbd>End</kbd> | Jump to start / chequered flag       |
+| <kbd>1</kbd>–<kbd>4</kbd>       | Replay speed 0.5× / 1× / 2× / 5× |
 
 ---
 
@@ -396,8 +332,6 @@ Available in the **Replay Studio** on desktop and web:
   appends to a capped buffer rather than refetching the session.
 - **Pruning.** Cached rows older than seven days are dropped at startup;
   Settings shows the entry count with a manual purge.
-
-Full detail in **[docs/OFFLINE_CACHE.md](docs/OFFLINE_CACHE.md)**.
 
 ---
 
@@ -428,29 +362,30 @@ lib/
 
 ## 🗺 Roadmap
 
-- [x] Live timing, standings, telemetry
-- [x] Analytics Command Center
-- [x] Race Replay & Strategy Simulator
-- [x] Driver Comparison Studio
-- [x] Offline caching, light mode, authentication
-- [ ] **Circuit Explorer** — interactive track maps, DRS zones, elevation, speed traps
-- [ ] Drivers & Teams detail pages
-- [ ] Calendar with countdowns and circuit profiles
-- [ ] Favourites synced per account
-- [ ] Predictive strategy simulator ("what if he'd pitted on lap 22?")
+- [X]  Live timing, standings, telemetry
+- [X]  Analytics Command Center
+- [X]  Race Replay & Strategy Simulator
+- [X]  Driver Comparison Studio
+- [X]  Offline caching, light mode, authentication
+- [ ]  **Circuit Explorer** — interactive track maps, DRS zones, elevation, speed traps
+- [ ]  Drivers & Teams detail pages
+- [ ]  Calendar with countdowns and circuit profiles
+- [ ]  Favourites synced per account
+- [ ]  Predictive strategy simulator ("what if he'd pitted on lap 22?")
 
 ---
 
 ## 🧯 Troubleshooting
 
-| Symptom | Fix |
-|---|---|
-| `Target of URI hasn't been generated: cached_response.g.dart` | Run `dart run build_runner build --delete-conflicting-outputs` |
-| Windows: `Compatibility with CMake < 3.5 has been removed` | See [docs/WINDOWS_BUILD.md](docs/WINDOWS_BUILD.md) |
-| Google Sign-In: `ApiException: 10` | Missing SHA-1 fingerprint in Firebase |
-| App skips the login screen entirely | Firebase didn't initialise — check the debug console |
-| Charts blurry / slow on web | Build with `--web-renderer canvaskit` |
-| Replay says "no lap-by-lap timing" | Jolpica timing starts in 1996 — pick a later race |
+
+| Symptom                                                       | Fix                                                           |
+| ------------------------------------------------------------- | ------------------------------------------------------------- |
+| `Target of URI hasn't been generated: cached_response.g.dart` | Run`dart run build_runner build --delete-conflicting-outputs` |
+| Windows:`Compatibility with CMake < 3.5 has been removed`     | See[docs/WINDOWS_BUILD.md](docs/WINDOWS_BUILD.md)             |
+| Google Sign-In:`ApiException: 10`                             | Missing SHA-1 fingerprint in Firebase                         |
+| App skips the login screen entirely                           | Firebase didn't initialise — check the debug console         |
+| Charts blurry / slow on web                                   | Build with`--web-renderer canvaskit`                          |
+| Replay says "no lap-by-lap timing"                            | Jolpica timing starts in 1996 — pick a later race            |
 
 ---
 
