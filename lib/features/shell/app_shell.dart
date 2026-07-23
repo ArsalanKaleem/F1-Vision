@@ -5,6 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/responsive.dart';
 import '../../routes/nav_destinations.dart';
+import 'app_drawer.dart';
 
 /// The persistent chrome around every page. On desktop/tablet it renders a
 /// collapsible navigation rail; on mobile it switches to a bottom bar. The body
@@ -38,11 +39,20 @@ class _AppShellState extends State<AppShell> {
 
     if (context.isMobile) {
       return Scaffold(
-        body: SafeArea(child: widget.child),
-        bottomNavigationBar: _MobileNavBar(
-          selected: selected,
-          onTap: _go,
+        // A slim bar purely to host the drawer button — every screen already
+        // renders its own title, so this one only carries the wordmark.
+        appBar: AppBar(
+          toolbarHeight: 52,
+          backgroundColor: AppColors.background,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          iconTheme: IconThemeData(color: AppColors.textSecondary),
+          title: Text('F1 VISION',
+              style: AppTextStyles.overline.copyWith(letterSpacing: 2)),
         ),
+        drawer: AppDrawer(selected: selected, onSelect: _go),
+        body: SafeArea(top: false, child: widget.child),
+        bottomNavigationBar: _MobileNavBar(selected: selected, onTap: _go),
       );
     }
 
@@ -224,16 +234,15 @@ class _MobileNavBar extends StatelessWidget {
   final int selected;
   final ValueChanged<int> onTap;
 
-  // Mobile shows the five most-used destinations.
-  // Dashboard, Live Race, Analytics, Replay, Settings.
-  // Indices map into `appDestinations` — update if that list is reordered.
-  static const _mobileIndices = [0, 1, 7, 8, 11];
+  /// The four most-used destinations get a permanent slot. Everything else is
+  /// reachable from the drawer, so this list stays short on purpose.
+  /// Indices map into `appDestinations` — update if that list is reordered.
+  static const _primaryIndices = [0, 1, 7, 8];
 
   @override
   Widget build(BuildContext context) {
-    final localSelected = _mobileIndices.contains(selected)
-        ? _mobileIndices.indexOf(selected)
-        : 0;
+    final isPrimary = _primaryIndices.contains(selected);
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -241,15 +250,21 @@ class _MobileNavBar extends StatelessWidget {
       ),
       child: NavigationBar(
         backgroundColor: Colors.transparent,
-        selectedIndex: localSelected,
+        // Nothing is highlighted while the user is on a drawer-only screen,
+        // rather than falsely highlighting the first tab.
+        selectedIndex: isPrimary ? _primaryIndices.indexOf(selected) : 0,
         height: 64,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        onDestinationSelected: (i) => onTap(_mobileIndices[i]),
+        onDestinationSelected: (i) => onTap(_primaryIndices[i]),
         destinations: [
-          for (final i in _mobileIndices)
+          for (final i in _primaryIndices)
             NavigationDestination(
               icon: Icon(appDestinations[i].icon),
-              selectedIcon: Icon(appDestinations[i].selectedIcon),
+              selectedIcon: Icon(
+                appDestinations[i].selectedIcon,
+                // Dim the "selected" icon when we're actually elsewhere.
+                color: isPrimary ? null : AppColors.textSecondary,
+              ),
               label: appDestinations[i].label,
             ),
         ],

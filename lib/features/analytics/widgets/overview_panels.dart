@@ -12,10 +12,16 @@ class SeasonStatsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalStatus = data.statusSlices.fold<int>(0, (a, b) => a + b.count);
-    final finished = data.statusSlices
-        .where((s) => s.label == 'Finished' || s.label.startsWith('+'))
-        .fold<int>(0, (a, b) => a + b.count);
+    // Use the repository's untruncated totals; fall back to the display
+    // slices only if an older payload didn't carry them.
+    final totalStatus = data.statusTotal > 0
+        ? data.statusTotal
+        : data.statusSlices.fold<int>(0, (a, b) => a + b.count);
+    final finished = data.statusTotal > 0
+        ? data.classifiedCount
+        : data.statusSlices
+            .where((s) => s.label == 'Finished' || s.label.startsWith('+'))
+            .fold<int>(0, (a, b) => a + b.count);
     final finishRate = totalStatus > 0 ? finished / totalStatus : 0.0;
     final totalDnfs = data.drivers.fold<int>(0, (a, b) => a + b.dnfs);
     final leader = data.drivers.isNotEmpty ? data.drivers.first : null;

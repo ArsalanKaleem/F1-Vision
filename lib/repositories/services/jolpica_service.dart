@@ -219,11 +219,11 @@ class JolpicaService {
 
   /// Race (or sprint) classification plus the race header block.
   Future<({Map<String, dynamic> race, List<Map<String, dynamic>> results})>
-  raceResults(
-      String season,
-      int round, {
-        ReplaySession session = ReplaySession.race,
-      }) async {
+      raceResults(
+    String season,
+    int round, {
+    ReplaySession session = ReplaySession.race,
+  }) async {
     final path = session == ReplaySession.sprint
         ? ApiConstants.sprintResults(season, round)
         : ApiConstants.raceResults(season, round);
@@ -241,9 +241,9 @@ class JolpicaService {
     final key = session == ReplaySession.sprint ? 'SprintResults' : 'Results';
     final rows = (race[key] as List?) ?? const [];
     return (
-    race: race,
-    results:
-    rows.cast<Map>().map((e) => e.cast<String, dynamic>()).toList(),
+      race: race,
+      results:
+          rows.cast<Map>().map((e) => e.cast<String, dynamic>()).toList(),
     );
   }
 
@@ -254,7 +254,7 @@ class JolpicaService {
   /// are cached for hours — completed races never change — so this cost is
   /// paid once per race.
   Future<List<({int lap, String driverId, int position, double? seconds})>>
-  raceLaps(String season, int round) async {
+      raceLaps(String season, int round) async {
     final out = <({int lap, String driverId, int position, double? seconds})>[];
     const limit = 100;
     var offset = 0;
@@ -281,10 +281,10 @@ class JolpicaService {
         for (final t in timings.cast<Map>()) {
           final timing = t.cast<String, dynamic>();
           out.add((
-          lap: lapNumber,
-          driverId: Json.asString(timing['driverId']),
-          position: Json.asInt(timing['position']) ?? 0,
-          seconds: _seconds(Json.asString(timing['time'])),
+            lap: lapNumber,
+            driverId: Json.asString(timing['driverId']),
+            position: Json.asInt(timing['position']) ?? 0,
+            seconds: _seconds(Json.asString(timing['time'])),
           ));
           added++;
         }
@@ -298,7 +298,7 @@ class JolpicaService {
 
   /// Pit stops for a race (lap, stop number and stationary duration).
   Future<List<({String driverId, int lap, int stop, double? duration})>>
-  racePitStops(String season, int round) async {
+      racePitStops(String season, int round) async {
     final data = await _client.getJson(
       ApiConstants.racePitStops(season, round),
       query: {'limit': 100},
@@ -312,19 +312,19 @@ class JolpicaService {
     return stops.cast<Map>().map((e) {
       final m = e.cast<String, dynamic>();
       return (
-      driverId: Json.asString(m['driverId']),
-      lap: Json.asInt(m['lap']) ?? 0,
-      stop: Json.asInt(m['stop']) ?? 0,
-      duration: _seconds(Json.asString(m['duration'])),
+        driverId: Json.asString(m['driverId']),
+        lap: Json.asInt(m['lap']) ?? 0,
+        stop: Json.asInt(m['stop']) ?? 0,
+        duration: _seconds(Json.asString(m['duration'])),
       );
     }).toList();
   }
 
   /// Pole sitter for a race (name + Q3 time), when qualifying data exists.
   Future<({String name, String time})?> racePole(
-      String season,
-      int round,
-      ) async {
+    String season,
+    int round,
+  ) async {
     final data = await _client.getJson(
       ApiConstants.raceQualifying(season, round),
       query: {'limit': 100},
@@ -343,13 +343,13 @@ class JolpicaService {
       final best = Json.asString(row['Q3']).isNotEmpty
           ? Json.asString(row['Q3'])
           : Json.asString(row['Q2']).isNotEmpty
-          ? Json.asString(row['Q2'])
-          : Json.asString(row['Q1']);
+              ? Json.asString(row['Q2'])
+              : Json.asString(row['Q1']);
       return (
-      name:
-      '${Json.asString(driver['givenName'])} ${Json.asString(driver['familyName'])}'
-          .trim(),
-      time: best,
+        name:
+            '${Json.asString(driver['givenName'])} ${Json.asString(driver['familyName'])}'
+                .trim(),
+        time: best,
       );
     }
     return null;

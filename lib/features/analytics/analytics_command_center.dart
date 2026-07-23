@@ -150,43 +150,82 @@ class _Header extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Row(
+    // On phones the title and the controls can't share a row without
+    // overflowing, so the controls drop onto their own line.
+    final compact = context.isMobile;
+
+    final titleBlock = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text('ANALYTICS COMMAND CENTER',
-                      style: AppTextStyles.overline),
-                  if (isCurrent) ...[
-                    const SizedBox(width: 10),
-                    const LiveBadge(label: 'LIVE'),
-                  ],
-                ],
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                compact ? 'ANALYTICS' : 'ANALYTICS COMMAND CENTER',
+                style: AppTextStyles.overline,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
-              Text('Season $season', style: AppTextStyles.displayLarge),
-              if (generatedAt != null) ...[
-                const SizedBox(height: 4),
-                Text('Updated ${_hhmmss(generatedAt!)}',
-                    style: AppTextStyles.body
-                        .copyWith(color: AppColors.textTertiary)),
-              ],
+            ),
+            if (isCurrent) ...[
+              const SizedBox(width: 10),
+              const LiveBadge(label: 'LIVE'),
             ],
-          ),
+          ],
         ),
-        const SizedBox(width: 12),
+        const SizedBox(height: 4),
+        Text(
+          'Season $season',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: compact
+              ? AppTextStyles.headlineMedium
+              : AppTextStyles.displayLarge,
+        ),
+        if (generatedAt != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            'Updated ${_hhmmss(generatedAt!)}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.body.copyWith(color: AppColors.textTertiary),
+          ),
+        ],
+      ],
+    );
+
+    final controls = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
         const _SeasonSelector(),
         const SizedBox(width: 8),
         IconButton(
           onPressed: onRefresh,
-          tooltip: 'Refresh',
+          tooltip: 'Refresh analytics',
           icon: const Icon(Icons.refresh_rounded),
           color: AppColors.textSecondary,
         ),
+      ],
+    );
+
+    if (compact) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          titleBlock,
+          const SizedBox(height: 12),
+          controls,
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: titleBlock),
+        const SizedBox(width: 12),
+        controls,
       ],
     );
   }

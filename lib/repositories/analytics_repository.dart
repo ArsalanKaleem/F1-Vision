@@ -139,6 +139,19 @@ class AnalyticsRepository {
       ));
     }
 
+    // Accurate finish/retirement totals must be taken from the FULL status
+    // table: the display slices below fold the long tail into "Other", which
+    // would otherwise mis-count lapped finishers ("+2 Laps", "+3 Laps", …)
+    // as retirements.
+    var statusTotal = 0;
+    var classifiedCount = 0;
+    for (final s in status) {
+      statusTotal += s.count;
+      if (s.label == 'Finished' || s.label.startsWith('+')) {
+        classifiedCount += s.count;
+      }
+    }
+
     // Status breakdown: keep the six largest, fold the rest into "Other".
     final sortedStatus = [...status]..sort((a, b) => b.count.compareTo(a.count));
     final slices = <StatusSlice>[];
@@ -160,6 +173,8 @@ class AnalyticsRepository {
       drivers: drivers,
       constructors: constructors,
       statusSlices: slices,
+      classifiedCount: classifiedCount,
+      statusTotal: statusTotal,
       pit: pit,
       generatedAt: DateTime.now(),
     );

@@ -138,11 +138,16 @@ class _Header extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               children: [
-                Text(
-                  '${session.circuitShortName} · ${session.sessionName}'
-                      .toUpperCase(),
-                  style: AppTextStyles.overline,
+                Flexible(
+                  child: Text(
+                    '${session.circuitShortName} · ${session.sessionName}'
+                        .toUpperCase(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.overline,
+                  ),
                 ),
+                const SizedBox(width: 12),
                 const Spacer(),
                 Text(live ? 'GAP' : 'POS', style: AppTextStyles.overline),
               ],

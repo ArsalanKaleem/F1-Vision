@@ -206,6 +206,8 @@ class SeasonAnalytics {
     required this.statusSlices,
     required this.generatedAt,
     this.pit,
+    this.classifiedCount = 0,
+    this.statusTotal = 0,
   });
 
   final String season;
@@ -215,6 +217,13 @@ class SeasonAnalytics {
   final List<DriverAggregate> drivers; // sorted by championship position
   final List<ConstructorAggregate> constructors;
   final List<StatusSlice> statusSlices;
+
+  /// Classified finishers ("Finished" plus any "+N Lap" result) and the total
+  /// number of classified results. Computed from the *full* status table
+  /// before the display slices collapse the long tail into "Other", so the
+  /// finish/retirement rates stay accurate.
+  final int classifiedCount;
+  final int statusTotal;
   final PitAnalytics? pit;
   final DateTime generatedAt;
 
