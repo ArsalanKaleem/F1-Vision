@@ -123,9 +123,7 @@ class _AccountCard extends ConsumerWidget {
           const SectionHeader(title: 'Account'),
           if (!firebaseReady)
             Text(
-              'Sign-in is not configured in this build. Add your Firebase '
-              'project (see docs/FIREBASE_SETUP.md in the repository) to '
-              'enable e-mail and Google authentication.',
+              'Sign-in is not configured in this windows build..',
               style: AppTextStyles.body,
             )
           else
