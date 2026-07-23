@@ -31,7 +31,7 @@ class DriverStanding {
     final constructors =
         (json['Constructors'] as List?)?.cast<Map>() ?? const [];
     final firstConstructor =
-        constructors.isNotEmpty ? constructors.first.cast<String, dynamic>() : {};
+    constructors.isNotEmpty ? (constructors.first as Map).cast<String, dynamic>() : {};
 
     return DriverStanding(
       position: Json.asInt(json['position']) ?? 0,
