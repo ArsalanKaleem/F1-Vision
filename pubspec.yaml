@@ -20,8 +20,8 @@ dependencies:
   dio: ^5.7.0
 
   # Auth (optional at runtime — the app runs without Firebase configured)
-  firebase_core: ^3.6.0
-  firebase_auth: ^5.3.1
+  firebase_core: ^4.6.0
+  firebase_auth: ^6.3.0
   # Pinned below 7.0.0: google_sign_in 7.x is a breaking API rewrite.
   google_sign_in: ^6.2.1
 

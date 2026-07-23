@@ -8,8 +8,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 /// automatically, so the screen never shows a dead link.
 abstract final class AppInfo {
   // ── Developer ────────────────────────────────────────────────────────
-  static const String developerName = 'Your Name';
-  static const String developerRole = 'Flutter Engineer · Motorsport Nerd';
+  static const String developerName = 'Arsalan Kaleem';
+  static const String developerRole = 'Flutter And AI Engineer · Motorsport Nerd';
   static const String developerBio =
       'I build fast, data-dense interfaces. F1 Vision is my playground for '
       'real-time telemetry, race strategy analysis and the kind of dashboard '
@@ -17,7 +17,7 @@ abstract final class AppInfo {
   static const String developerLocation = 'Karachi, Pakistan';
 
   /// Optional headshot in `assets/branding/`. Leave null to show initials.
-  static const String? avatarAsset = null;
+  static const String avatarAsset = 'assets/branding/me.png';
 
   // ── App ──────────────────────────────────────────────────────────────
   static const String appName = 'F1 Vision';
@@ -26,7 +26,7 @@ abstract final class AppInfo {
   static const int copyrightYear = 2026;
 
   // ── Repository & support ─────────────────────────────────────────────
-  static const String repoUrl = 'https://github.com/your-username/f1-vision';
+  static const String repoUrl = 'https://github.com/ArsalanKaleem/F1-Vision';
   static const String issuesUrl = '$repoUrl/issues';
   static const String bugReportUrl = '$repoUrl/issues/new?labels=bug';
   static const String featureRequestUrl =
@@ -75,43 +75,29 @@ class SocialLink {
 const List<SocialLink> socialLinks = [
   SocialLink(
     label: 'GitHub',
-    handle: '@your-username',
-    url: 'https://github.com/your-username',
+    handle: 'Arsalan Kaleem',
+    url: 'https://github.com/ArsalanKaleem',
     icon: FontAwesomeIcons.github,
     color: Color(0xFF8B94A3),
   ),
   SocialLink(
     label: 'LinkedIn',
-    handle: 'in/your-name',
-    url: 'https://linkedin.com/in/your-name',
+    handle: '/in/arsalankaleem',
+    url: 'www.linkedin.com/in/arsalankaleem',
     icon: FontAwesomeIcons.linkedinIn,
     color: Color(0xFF0A66C2),
   ),
   SocialLink(
-    label: 'X',
-    handle: '@your-handle',
-    url: 'https://x.com/your-handle',
-    icon: FontAwesomeIcons.xTwitter,
-    color: Color(0xFF61708A),
-  ),
-  SocialLink(
-    label: 'Instagram',
-    handle: '@your-handle',
-    url: 'https://instagram.com/your-handle',
-    icon: FontAwesomeIcons.instagram,
-    color: Color(0xFFE1306C),
-  ),
-  SocialLink(
     label: 'Email',
-    handle: 'you@example.com',
-    url: 'mailto:you@example.com',
+    handle: 'arsalanabbasi.here@gmail.com',
+    url: 'mailto:arsalanabbasi.here@gmail.com',
     icon: FontAwesomeIcons.envelope,
     color: Color(0xFFE1A100),
   ),
   SocialLink(
     label: 'Website',
-    handle: 'your-site.dev',
-    url: 'https://your-site.dev',
+    handle: 'https://arsalankaleem.github.io/portfolio/',
+    url: 'https://arsalankaleem.github.io/portfolio/',
     icon: FontAwesomeIcons.globe,
     color: Color(0xFF2ECC71),
   ),
