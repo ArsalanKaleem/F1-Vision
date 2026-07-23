@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
-import '../../../core/widgets/glass_card.dart';
+import '../../../core/widgets/data_panel.dart';
 
 /// The consistent card wrapper for every analytics panel: a titled glass card
 /// with an optional subtitle and trailing widget.
@@ -26,37 +26,15 @@ class AnalyticsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    // Delegates to the shared core panel so spacing, typography and header
+    // layout stay identical across Analytics, Replay and Comparison.
+    return DataPanel(
+      title: title,
+      subtitle: subtitle,
+      trailing: trailing,
       glow: glow,
       padding: padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        style: AppTextStyles.titleSmall
-                            .copyWith(fontWeight: FontWeight.w600)),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(subtitle!, style: AppTextStyles.overline),
-                    ],
-                  ],
-                ),
-              ),
-              if (trailing != null) trailing!,
-            ],
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
+      child: child,
     );
   }
 }

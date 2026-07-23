@@ -6,7 +6,9 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/utils/responsive.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/info_widgets.dart';
+import '../../core/data/offline_cache_store.dart';
 import '../../providers/auth_providers.dart';
+import '../../providers/core_providers.dart';
 import '../../providers/theme_providers.dart';
 
 /// App settings: appearance (light / dark / system), the signed-in account,
@@ -33,6 +35,8 @@ class SettingsScreen extends ConsumerWidget {
               const _AppearanceCard(),
               const SizedBox(height: 16),
               const _AccountCard(),
+              const SizedBox(height: 16),
+              const _OfflineCard(),
               const SizedBox(height: 16),
               const _AboutCard(),
             ],
@@ -197,6 +201,68 @@ class _AccountBody extends ConsumerWidget {
   }
 }
 
+/// Offline cache status and a manual purge.
+class _OfflineCard extends ConsumerStatefulWidget {
+  const _OfflineCard();
+
+  @override
+  ConsumerState<_OfflineCard> createState() => _OfflineCardState();
+}
+
+class _OfflineCardState extends ConsumerState<_OfflineCard> {
+  @override
+  Widget build(BuildContext context) {
+    final store = ref.watch(cacheStoreProvider);
+    final offline = store is OfflineCacheStore ? store : null;
+
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader(title: 'Offline data'),
+          Text(
+            offline == null
+                ? 'Responses are cached in memory for this session only. '
+                    'Persistent caching is unavailable on this platform.'
+                : 'Race, standings and analytics responses are stored on this '
+                    'device, so screens you have opened before still work '
+                    'without a connection.',
+            style: AppTextStyles.body,
+          ),
+          if (offline != null) ...[
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Icon(Icons.storage_rounded,
+                    size: 15, color: AppColors.textTertiary),
+                const SizedBox(width: 8),
+                Text('${offline.entryCount} cached responses',
+                    style: AppTextStyles.label),
+                const Spacer(),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    offline.clear();
+                    setState(() {});
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Offline cache cleared.')),
+                    );
+                  },
+                  icon: const Icon(Icons.delete_outline_rounded, size: 16),
+                  label: const Text('Clear'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    side: BorderSide(color: AppColors.surfaceStroke),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class _AboutCard extends StatelessWidget {
   const _AboutCard();
 
@@ -214,7 +280,7 @@ class _AboutCard extends StatelessWidget {
             style: AppTextStyles.body,
           ),
           const SizedBox(height: 12),
-          Text('VERSION 0.4.0', style: AppTextStyles.overline),
+          Text('VERSION 0.6.0', style: AppTextStyles.overline),
         ],
       ),
     );

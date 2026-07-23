@@ -34,6 +34,18 @@ abstract final class ApiConstants {
   static String results(String season, String round) =>
       '/$season/$round/results.json';
 
+  // Race replay (single-event feeds) ------------------------------------
+  static String raceLaps(String season, int round) =>
+      '/$season/$round/laps.json';
+  static String racePitStops(String season, int round) =>
+      '/$season/$round/pitstops.json';
+  static String raceQualifying(String season, int round) =>
+      '/$season/$round/qualifying.json';
+  static String raceResults(String season, int round) =>
+      '/$season/$round/results.json';
+  static String sprintResults(String season, int round) =>
+      '/$season/$round/sprint.json';
+
   // Analytics (season-wide aggregates) ----------------------------------
   static String seasonResults(String season) => '/$season/results.json';
   static String seasonQualifyingPole(String season) =>

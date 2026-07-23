@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import '../features/analytics/analytics_command_center.dart';
 import '../features/auth/login_screen.dart';
+import '../features/compare/comparison_studio_screen.dart';
 import '../features/auth/register_screen.dart';
 import '../features/home/home_screen.dart';
 import '../features/live_race/live_race_screen.dart';
+import '../features/replay/replay_studio_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/shell/app_shell.dart';
 import '../features/shell/coming_soon_screen.dart';
@@ -138,23 +140,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (c, s) => _fade(s, const AnalyticsCommandCenter()),
           ),
           GoRoute(
+            path: '/replay',
+            pageBuilder: (c, s) => _fade(s, const ReplayStudioScreen()),
+          ),
+          GoRoute(
             path: '/compare',
-            pageBuilder: (c, s) => _fade(
-              s,
-              const ComingSoonScreen(
-                title: 'Compare Drivers',
-                icon: Icons.compare_arrows_rounded,
-                description:
-                    'Pick two drivers and compare lap time, top speed, sectors, '
-                    'tyre strategy, pit stops and race pace via radar and bar '
-                    'charts with difference indicators.',
-                planned: [
-                  'Two-driver selector',
-                  'Radar chart across performance axes',
-                  'Head-to-head sector + pace deltas',
-                ],
-              ),
-            ),
+            pageBuilder: (c, s) => _fade(s, const ComparisonStudioScreen()),
           ),
           GoRoute(
             path: '/settings',

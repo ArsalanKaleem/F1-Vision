@@ -3,6 +3,7 @@ import '../../core/errors/failures.dart';
 import '../../core/network/dio_client.dart';
 import '../../core/utils/json.dart';
 import '../../models/analytics.dart';
+import '../../models/replay.dart';
 import '../../models/standings.dart';
 
 /// Typed access to the Jolpica (Ergast-compatible) endpoints.
@@ -192,6 +193,166 @@ class JolpicaService {
       fastestLabel: fastestLabel,
       stops: count,
     );
+  }
+
+  // ── Race replay feeds ───────────────────────────────────────────────
+
+  /// The season calendar as typed listings for the replay picker.
+  Future<List<RaceListing>> seasonSchedule(String season) async {
+    final races = await raceSchedule(season);
+    return races.map((race) {
+      final circuit = (race['Circuit'] as Map?)?.cast<String, dynamic>() ?? {};
+      final location =
+          (circuit['Location'] as Map?)?.cast<String, dynamic>() ?? {};
+      return RaceListing(
+        season: season,
+        round: Json.asInt(race['round']) ?? 0,
+        raceName: Json.asString(race['raceName']),
+        circuitName: Json.asString(circuit['circuitName']),
+        locality: Json.asString(location['locality']),
+        country: Json.asString(location['country']),
+        date: Json.asDate(race['date']),
+        hasSprint: race['Sprint'] != null,
+      );
+    }).toList();
+  }
+
+  /// Race (or sprint) classification plus the race header block.
+  Future<({Map<String, dynamic> race, List<Map<String, dynamic>> results})>
+      raceResults(
+    String season,
+    int round, {
+    ReplaySession session = ReplaySession.race,
+  }) async {
+    final path = session == ReplaySession.sprint
+        ? ApiConstants.sprintResults(season, round)
+        : ApiConstants.raceResults(season, round);
+    final data = await _client.getJson(
+      path,
+      query: {'limit': 100},
+      cacheTtl: ApiConstants.historicalCacheTtl,
+    );
+    final mr = _mrData(data);
+    final races = (mr['RaceTable']?['Races'] as List?) ?? const [];
+    if (races.isEmpty) {
+      return (race: <String, dynamic>{}, results: <Map<String, dynamic>>[]);
+    }
+    final race = races.first.cast<String, dynamic>();
+    final key = session == ReplaySession.sprint ? 'SprintResults' : 'Results';
+    final rows = (race[key] as List?) ?? const [];
+    return (
+      race: race,
+      results:
+          rows.cast<Map>().map((e) => e.cast<String, dynamic>()).toList(),
+    );
+  }
+
+  /// Every lap timing of a race, paginated.
+  ///
+  /// Jolpica caps `limit` at 100 and paginates over individual *timings*
+  /// (driver × lap), so a full race needs roughly a dozen requests. Responses
+  /// are cached for hours — completed races never change — so this cost is
+  /// paid once per race.
+  Future<List<({int lap, String driverId, int position, double? seconds})>>
+      raceLaps(String season, int round) async {
+    final out = <({int lap, String driverId, int position, double? seconds})>[];
+    const limit = 100;
+    var offset = 0;
+    var total = 1 << 30;
+    var pages = 0;
+    while (offset < total && pages < 30) {
+      final data = await _client.getJson(
+        ApiConstants.raceLaps(season, round),
+        query: {'limit': limit, 'offset': offset},
+        cacheTtl: ApiConstants.historicalCacheTtl,
+      );
+      final mr = _mrData(data);
+      total = Json.asInt(mr['total']) ?? out.length;
+      final races = (mr['RaceTable']?['Races'] as List?) ?? const [];
+      if (races.isEmpty) break;
+      final laps =
+          (races.first.cast<String, dynamic>()['Laps'] as List?) ?? const [];
+      if (laps.isEmpty) break;
+      var added = 0;
+      for (final lapRaw in laps.cast<Map>()) {
+        final lapMap = lapRaw.cast<String, dynamic>();
+        final lapNumber = Json.asInt(lapMap['number']) ?? 0;
+        final timings = (lapMap['Timings'] as List?) ?? const [];
+        for (final t in timings.cast<Map>()) {
+          final timing = t.cast<String, dynamic>();
+          out.add((
+            lap: lapNumber,
+            driverId: Json.asString(timing['driverId']),
+            position: Json.asInt(timing['position']) ?? 0,
+            seconds: _seconds(Json.asString(timing['time'])),
+          ));
+          added++;
+        }
+      }
+      offset += limit;
+      pages++;
+      if (added == 0) break;
+    }
+    return out;
+  }
+
+  /// Pit stops for a race (lap, stop number and stationary duration).
+  Future<List<({String driverId, int lap, int stop, double? duration})>>
+      racePitStops(String season, int round) async {
+    final data = await _client.getJson(
+      ApiConstants.racePitStops(season, round),
+      query: {'limit': 100},
+      cacheTtl: ApiConstants.historicalCacheTtl,
+    );
+    final mr = _mrData(data);
+    final races = (mr['RaceTable']?['Races'] as List?) ?? const [];
+    if (races.isEmpty) return const [];
+    final stops =
+        (races.first.cast<String, dynamic>()['PitStops'] as List?) ?? const [];
+    return stops.cast<Map>().map((e) {
+      final m = e.cast<String, dynamic>();
+      return (
+        driverId: Json.asString(m['driverId']),
+        lap: Json.asInt(m['lap']) ?? 0,
+        stop: Json.asInt(m['stop']) ?? 0,
+        duration: _seconds(Json.asString(m['duration'])),
+      );
+    }).toList();
+  }
+
+  /// Pole sitter for a race (name + Q3 time), when qualifying data exists.
+  Future<({String name, String time})?> racePole(
+    String season,
+    int round,
+  ) async {
+    final data = await _client.getJson(
+      ApiConstants.raceQualifying(season, round),
+      query: {'limit': 100},
+      cacheTtl: ApiConstants.historicalCacheTtl,
+    );
+    final mr = _mrData(data);
+    final races = (mr['RaceTable']?['Races'] as List?) ?? const [];
+    if (races.isEmpty) return null;
+    final rows =
+        (races.first.cast<String, dynamic>()['QualifyingResults'] as List?) ??
+            const [];
+    for (final r in rows.cast<Map>()) {
+      final row = r.cast<String, dynamic>();
+      if ((Json.asInt(row['position']) ?? 0) != 1) continue;
+      final driver = (row['Driver'] as Map?)?.cast<String, dynamic>() ?? {};
+      final best = Json.asString(row['Q3']).isNotEmpty
+          ? Json.asString(row['Q3'])
+          : Json.asString(row['Q2']).isNotEmpty
+              ? Json.asString(row['Q2'])
+              : Json.asString(row['Q1']);
+      return (
+        name:
+            '${Json.asString(driver['givenName'])} ${Json.asString(driver['familyName'])}'
+                .trim(),
+        time: best,
+      );
+    }
+    return null;
   }
 
   static double? _seconds(String raw) {

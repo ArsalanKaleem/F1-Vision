@@ -66,6 +66,12 @@ const appDestinations = <NavDestination>[
     selectedIcon: Icons.insights_rounded,
   ),
   NavDestination(
+    path: '/replay',
+    label: 'Replay',
+    icon: Icons.replay_circle_filled_outlined,
+    selectedIcon: Icons.replay_circle_filled_rounded,
+  ),
+  NavDestination(
     path: '/compare',
     label: 'Compare',
     icon: Icons.compare_arrows_outlined,

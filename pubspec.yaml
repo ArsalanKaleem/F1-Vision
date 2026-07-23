@@ -1,7 +1,7 @@
 name: f1_vision
 description: "F1 Vision — a premium Formula 1 analytics dashboard built with Flutter."
 publish_to: "none"
-version: 0.4.0+1
+version: 0.6.0+1
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -25,8 +25,11 @@ dependencies:
   # Pinned below 7.0.0: google_sign_in 7.x is a breaking API rewrite.
   google_sign_in: ^6.2.1
 
-  # Local persistence (theme preference)
-  shared_preferences: ^2.3.2
+  # Local persistence
+  shared_preferences: ^2.3.2      # theme preference
+  isar: ^3.1.0+1                  # offline response cache
+  isar_flutter_libs: ^3.1.0+1     # bundled native Isar binaries
+  path_provider: ^2.1.4
 
   # UI / theming
   google_fonts: ^6.2.1
@@ -39,20 +42,45 @@ dependencies:
   intl: ^0.19.0
 
 dev_dependencies:
+  # Isar schema codegen — run once after `flutter pub get`:
+  #   dart run build_runner build --delete-conflicting-outputs
+  build_runner: ^2.4.13
+  isar_generator: ^3.1.0+1
+  flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.1
   flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
 
-# NOTE on the original spec's heavier dependencies
-# ------------------------------------------------
-# The brief also lists freezed / json_serializable / build_runner / isar /
-# syncfusion_flutter_charts. They are intentionally omitted from this first
-# runnable cut so the project compiles with a plain `flutter pub get` (no
-# codegen step). Upgrade path:
-#   * Replace the hand-written models in lib/models with freezed unions and run
-#     `dart run build_runner build`.
-#   * Swap the in-memory CacheStore (lib/core/network) for isar collections.
-#   * Syncfusion charts can drop in alongside fl_chart where a licence is held.
-
 flutter:
   uses-material-design: true
+  assets:
+    - assets/branding/
+
+# ── App icon ───────────────────────────────────────────────────────────
+# Regenerate with: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/branding/app_icon.png"
+  android: true
+  ios: true
+  web:
+    generate: true
+    background_color: "#090909"
+    theme_color: "#E10600"
+  windows:
+    generate: true
+  macos:
+    generate: true
+  remove_alpha_ios: true
+  adaptive_icon_background: "#090909"
+  adaptive_icon_foreground: "assets/branding/app_icon_foreground.png"
+
+# ── Splash screen ──────────────────────────────────────────────────────
+# Regenerate with: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#090909"
+  image: "assets/branding/splash.png"
+  android_12:
+    color: "#090909"
+    image: "assets/branding/splash.png"
+  web: true

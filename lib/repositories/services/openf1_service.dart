@@ -127,6 +127,154 @@ class OpenF1Service {
     return double.tryParse(v?.toString() ?? '');
   }
 
+  static int? _toInt(Object? v) {
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v?.toString() ?? '');
+  }
+
+  // ── Historical session feeds (replay enrichment) ────────────────────
+  //
+  // OpenF1 only covers 2023 onwards. Every method here is optional extra
+  // detail: the replay is fully functional from Jolpica alone.
+
+  /// Finds the session of a given weekend by calendar date, e.g. the Race on
+  /// 2024-03-02. Returns null when OpenF1 has no data for that event.
+  Future<F1Session?> sessionOnDate({
+    required int year,
+    required DateTime date,
+    required String sessionName,
+  }) async {
+    final sessions = await sessionsForYear(year);
+    final target = DateTime.utc(date.year, date.month, date.day);
+    F1Session? best;
+    for (final s in sessions) {
+      if (s.sessionName.toLowerCase() != sessionName.toLowerCase()) continue;
+      final start = s.dateStart;
+      if (start == null) continue;
+      final day = DateTime.utc(start.year, start.month, start.day);
+      // Allow ±1 day: OpenF1 timestamps are UTC while Jolpica dates are local.
+      if (day.difference(target).inDays.abs() <= 1) {
+        best ??= s;
+      }
+    }
+    return best;
+  }
+
+  /// Tyre stints for a session.
+  Future<List<({int driverNumber, int lapStart, int lapEnd, String compound})>>
+      sessionStints(int sessionKey) async {
+    final data = await _client.getJson(
+      ApiConstants.stints,
+      query: {'session_key': sessionKey},
+      cacheTtl: ApiConstants.historicalCacheTtl,
+    );
+    final out =
+        <({int driverNumber, int lapStart, int lapEnd, String compound})>[];
+    for (final row in _asList(data)) {
+      final driverNo = _toInt(row['driver_number']);
+      if (driverNo == null) continue;
+      final start = _toInt(row['lap_start']) ?? 0;
+      out.add((
+        driverNumber: driverNo,
+        lapStart: start,
+        lapEnd: _toInt(row['lap_end']) ?? start,
+        compound: (row['compound'] ?? 'UNKNOWN').toString().toUpperCase(),
+      ));
+    }
+    return out;
+  }
+
+  /// Race-control messages (safety car, flags, incidents).
+  Future<
+      List<
+          ({
+            int? lap,
+            String category,
+            String flag,
+            String message,
+            String scope
+          })>> sessionRaceControl(int sessionKey) async {
+    final data = await _client.getJson(
+      ApiConstants.raceControl,
+      query: {'session_key': sessionKey},
+      cacheTtl: ApiConstants.historicalCacheTtl,
+    );
+    return _asList(data)
+        .map((row) => (
+              lap: _toInt(row['lap_number']),
+              category: (row['category'] ?? '').toString(),
+              flag: (row['flag'] ?? '').toString(),
+              message: (row['message'] ?? '').toString(),
+              scope: (row['scope'] ?? '').toString(),
+            ))
+        .toList();
+  }
+
+  /// Per-lap timing detail: lap duration, sector splits and speed-trap value.
+  Future<
+      List<
+          ({
+            int driverNumber,
+            int lapNumber,
+            double? duration,
+            double? sector1,
+            double? sector2,
+            double? sector3,
+            double? topSpeed,
+            DateTime? startedAt
+          })>> sessionLaps(int sessionKey) async {
+    final data = await _client.getJson(
+      ApiConstants.laps,
+      query: {'session_key': sessionKey},
+      cacheTtl: ApiConstants.historicalCacheTtl,
+    );
+    final out = <({
+      int driverNumber,
+      int lapNumber,
+      double? duration,
+      double? sector1,
+      double? sector2,
+      double? sector3,
+      double? topSpeed,
+      DateTime? startedAt
+    })>[];
+    for (final row in _asList(data)) {
+      final driverNo = _toInt(row['driver_number']);
+      final lapNo = _toInt(row['lap_number']);
+      if (driverNo == null || lapNo == null) continue;
+      out.add((
+        driverNumber: driverNo,
+        lapNumber: lapNo,
+        duration: _toDouble(row['lap_duration']),
+        sector1: _toDouble(row['duration_sector_1']),
+        sector2: _toDouble(row['duration_sector_2']),
+        sector3: _toDouble(row['duration_sector_3']),
+        topSpeed: _toDouble(row['st_speed']),
+        startedAt: DateTime.tryParse(row['date_start']?.toString() ?? ''),
+      ));
+    }
+    return out;
+  }
+
+  /// Weather samples across a session (used to detect rain transitions).
+  Future<List<({DateTime? date, double? airTemp, double? trackTemp, int? rain})>>
+      sessionWeatherSeries(int sessionKey) async {
+    final data = await _client.getJson(
+      ApiConstants.weather,
+      query: {'session_key': sessionKey},
+      cacheTtl: ApiConstants.historicalCacheTtl,
+    );
+    return _asList(data)
+        .map((row) => (
+              date: DateTime.tryParse(row['date']?.toString() ?? ''),
+              airTemp: _toDouble(row['air_temperature']),
+              trackTemp: _toDouble(row['track_temperature']),
+              rain: _toInt(row['rainfall']),
+            ))
+        .toList();
+  }
+
   /// A bounded slice of car telemetry for one driver, `[since, until)`.
   ///
   /// OpenF1's `/car_data` is huge over a full session, so we always fetch a

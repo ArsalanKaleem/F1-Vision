@@ -225,7 +225,8 @@ class _MobileNavBar extends StatelessWidget {
   final ValueChanged<int> onTap;
 
   // Mobile shows the five most-used destinations.
-  static const _mobileIndices = [0, 1, 4, 7, 9];
+  // Dashboard, Live Race, Analytics, Replay, Settings.
+  static const _mobileIndices = [0, 1, 7, 8, 10];
 
   @override
   Widget build(BuildContext context) {
